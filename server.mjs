@@ -249,8 +249,11 @@ app.post("/api/reminder", requireApiAuth, async (req, res) => {
 });
 
 export { app, config };
+export default app;
 
-if (process.env.NODE_ENV !== "test") {
+const isServerless = Boolean(process.env.VERCEL) || process.env.NODE_ENV === "test";
+
+if (!isServerless) {
   const cfg = config();
   if (cfg.hackathonDemo) {
     console.warn(
@@ -266,4 +269,8 @@ if (process.env.NODE_ENV !== "test") {
       `School Collections Assistant running at http://localhost:${PORT} (mode=${cfg.liveEnabled ? "live" : "fake"}${cfg.hackathonDemo ? ", hackathon-demo" : ""})`
     );
   });
+} else if (process.env.VERCEL && config().hackathonDemo) {
+  console.warn(
+    "HACKATHON_DEMO=true: operator API token and destination authorization checks are disabled for testing."
+  );
 }
